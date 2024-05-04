@@ -3,9 +3,9 @@ using UserCourseGrpcDotnet;
 
 namespace GrpcDotnetServer.Services;
 
-public class CourseUsecase(DataStore.DataStore dataStore, ILogger<CourseUsecase> logger) : CourseService.CourseServiceBase
+public class CourseUsecase(ILogger<CourseUsecase> logger) : CourseService.CourseServiceBase
 {
-    private readonly DataStore.DataStore _dataStore = dataStore;
+    private readonly DataStore.DataStore _dataStore = new();
     private readonly ILogger<CourseUsecase> _logger = logger;
 
     public override Task<GetCourseResponse> GetCourse(GetCourseRequest request, ServerCallContext ctx)
@@ -39,6 +39,7 @@ public class CourseUsecase(DataStore.DataStore dataStore, ILogger<CourseUsecase>
             _logger.LogInformation("No courses found");
             return Task.FromResult(response);
         }
+        response.CourseList = new CourseList();
         response.CourseList.Courses.AddRange(courses.Select(c => new Course
         {
             Id = c.Id,
@@ -60,6 +61,8 @@ public class CourseUsecase(DataStore.DataStore dataStore, ILogger<CourseUsecase>
         }
         var users = _dataStore.GetUserModels();
         var userCourseList = userCourses.Where(uc => uc.CourseId == request.CourseId);
+
+        response.UserList = new UserList();
         response.UserList.Users.AddRange(userCourseList.Select(uc => users.FirstOrDefault(u => u.Id == uc.UserId)).Select(u => new User
         {
             Id = u?.Id,

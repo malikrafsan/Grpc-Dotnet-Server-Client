@@ -3,9 +3,9 @@ using UserCourseGrpcDotnet;
 
 namespace GrpcDotnetServer.Services;
 
-public class UserUsecase(DataStore.DataStore dataStore, ILogger<UserUsecase> logger) : UserService.UserServiceBase
+public class UserUsecase(ILogger<UserUsecase> logger) : UserService.UserServiceBase
 {
-    private readonly DataStore.DataStore _dataStore = dataStore;
+    private readonly DataStore.DataStore _dataStore = new();
     private readonly ILogger<UserUsecase> _logger = logger;
 
     public override Task<GetUserResponse> GetUser(GetUserRequest request, ServerCallContext ctx)
@@ -40,13 +40,15 @@ public class UserUsecase(DataStore.DataStore dataStore, ILogger<UserUsecase> log
             _logger.LogInformation("No users found");
             return Task.FromResult(response);
         }
-        response.UserList.Users.AddRange(users.Select(u => new User
+        var res = users.Select(u => new User
         {
             Id = u.Id,
             Name = u.Name,
             Email = u.Email,
             Age = u.Age
-        }));
+        });
+        response.UserList = new UserList();
+        response.UserList.Users.AddRange(res);
         return Task.FromResult(response);
     }
     public override Task<GetCourseListByUserResponse> GetCourseListByUser(GetCourseListByUserRequest request, ServerCallContext ctx)
@@ -80,6 +82,7 @@ public class UserUsecase(DataStore.DataStore dataStore, ILogger<UserUsecase> log
             return Task.FromResult(response);
         }
 
+        response.CourseList = new CourseList();
         response.CourseList.Courses.AddRange(coursesDetail.Select(c => new Course
         {
             Id = c?.Id,
