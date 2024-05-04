@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+option csharp_namespace = "UserCourseGrpcDotnet";
+
+// model User
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  int32 age = 4;
+}
+
+message UserList { repeated User users = 1; }
+
+// model Course
+message Course {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message CourseList { repeated Course courses = 1; }
+
+// model UserCourse
+message UserCourse {
+  string userId = 1;
+  string courseId = 2;
+}
+
+message UserCourseList { repeated UserCourse userCourses = 1; }
+
+// service User
+message GetUserRequest { string id = 1; }
+message GetUserResponse { User user = 1; }
+
+message GetUserListRequest {}
+message GetUserListResponse { UserList userList = 1; }
+
+message GetCourseListByUserRequest { string userId = 1; }
+message GetCourseListByUserResponse { CourseList courseList = 1; }
+
+service UserService {
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc GetUserList(GetUserListRequest) returns (GetUserListResponse);
+  rpc GetCourseListByUser(GetCourseListByUserRequest)
+      returns (GetCourseListByUserResponse);
+}
+
+// service Course
+message GetCourseRequest { string id = 1; }
+message GetCourseResponse { Course course = 1; }
+
+message GetCourseListRequest {}
+message GetCourseListResponse { CourseList courseList = 1; }
+
+message GetUserListByCourseRequest { string courseId = 1; }
+message GetUserListByCourseResponse { UserList userList = 1; }
+
+service CourseService {
+  rpc GetCourse(GetCourseRequest) returns (GetCourseResponse);
+  rpc GetCourseList(GetCourseListRequest) returns (GetCourseListResponse);
+  rpc GetUserListByCourse(GetUserListByCourseRequest)
+      returns (GetUserListByCourseResponse);
+}
